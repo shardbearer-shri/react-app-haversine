@@ -1,0 +1,38 @@
+.App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 0rem;
+  background-color: #eaf0ff;
+  min-height: 100vh;
+
+  font-size: calc(10px + 1vmin);
+  /* color: white; */
+}
+.tabel_data {
+  /* height: 500px; */
+  max-height: 200px;
+  overflow: scroll;
+  max-width: fit-content;
+  padding: 1rem;
+  /* color: white; */
+}
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  margin: 1rem auto;
+  /* color: white; */
+}
+/* .tabel__item {
+  margin: 5rem 5rem;
+} */
+
+.table-container {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  max-width: 1000px;
+  margin: 0 auto;
+  /* color: white; */
+  align-self: center;
+}
