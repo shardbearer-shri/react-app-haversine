@@ -9,11 +9,15 @@
   font-size: calc(10px + 1vmin);
   /* color: white; */
 }
+.flex {
+  display: flex;
+  gap: 2rem;
+}
 .tabel_data {
   /* height: 500px; */
   max-height: 200px;
   overflow: scroll;
-  max-width: fit-content;
+  max-width: 300px;
   padding: 1rem;
   /* color: white; */
 }
@@ -35,4 +39,6 @@
   margin: 0 auto;
   /* color: white; */
   align-self: center;
+  max-height: 500px;
+  overflow-x: scroll;
 }

@@ -8,41 +8,41 @@ import FormControl from "@mui/material/FormControl";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import KeywordsUpload from "./KeywordsUpload";
 import DescriptionUpload from "./DescriptionUpload";
-// import { read, utils, writeFile } from "xlsx";
-// import * as XLSX from "xlsx";
-// import exportFromJSON from "export-from-json";
+import Tables from "./Tables";
+import JSZip from "jszip";
+import FileSaver from "file-saver";
 
-const degrees_to_radians = (degrees) => {
-  var pi = Math.PI;
-  return degrees * (pi / 180);
-};
-const radians_to_degrees = (radians) => {
-  var pi = Math.PI;
-  return radians * (180 / pi);
-};
-
-const MapsMath = () => {
+const MapsMath = (props) => {
   const [newArr, setNewArr] = useState([]);
   const circleCount = [];
-  const [age, setAge] = useState("");
+  const [userInput, setUserInput] = useState("");
+  const [userInputOuter, setOuterInput] = useState("");
+  const [outerSetCount, setOuterSetCount] = useState();
   const [SeoData, setSeoData] = useState();
   const [KeyWord, setKeyWord] = useState();
-  let newSeoArr = [];
-  let newKeyWordArr = [];
+  // const [finalTable, setFinalTable] = useState([]);
+
+  let cordCount = 10;
+
+  let centerLat = props.degToRad(72.9556716);
+  let centerLng = props.degToRad(19.1985743);
+
+  for (let i = 0.1; i <= userInput; i += 0.1) {
+    circleCount.push(parseFloat(i).toFixed(1));
+  }
+  console.log(circleCount, "circle count");
+  // function to get latitude and longitude pure which takes in the diameter value from user input state
   const mathFunc = (diam) => {
-    let centerLat = degrees_to_radians(72.9556716);
-    let centerLng = degrees_to_radians(19.1985743);
     let diameter = diam; // diameter of circle in km
     let dist = diameter / 6371.0;
     let allCord = [];
-    for (let x = 0; x <= 720; x++) {
-      let brng = degrees_to_radians(x);
-      let latitude =
-        // centerLat +
-        Math.asin(
-          Math.sin(centerLat) * Math.cos(dist) +
-            4 * Math.cos(centerLat) * Math.sin(dist) * Math.cos(brng)
-        );
+
+    for (let x = 0; x < cordCount; x++) {
+      let brng = props.degToRad(x);
+      let latitude = Math.asin(
+        Math.sin(centerLat) * Math.cos(dist) +
+          4 * Math.cos(centerLat) * Math.sin(dist) * Math.cos(brng)
+      );
       let longitude =
         centerLng +
         Math.atan2(
@@ -51,44 +51,58 @@ const MapsMath = () => {
         );
       // radians_to_degrees(longitude) radians_to_degrees(latitude)
       allCord.push({
-        longitude: radians_to_degrees(longitude),
-        latitude: radians_to_degrees(latitude),
+        longitude: props.radToDeg(longitude),
+        latitude: props.radToDeg(latitude),
       });
     }
     return allCord;
   };
+
   const allCircles = () => {
     const alldata = [];
     circleCount.forEach((ele, ind) => {
       const circleCords = mathFunc(ele);
       alldata.push(circleCords);
-      const data = [alldata[ind]];
-      const fileName = "download";
-      // const exportType = exportFromJSON.types.csv;
-      // exportFromJSON({ data, fileName, exportType });
+      // const data = [alldata[ind]];
+      // const fileName = "download";
     });
-    // console.log(alldata);
     return alldata;
   };
 
   // console.log(alldata);
   // console.log(dataArr, "loop array");
   const handleChange = (event) => {
-    setAge(event.target.value);
-    console.log(event.target.value);
+    setUserInput(event.target.value);
     setNewArr(allCircles());
   };
-  const userCircleCount = age;
-  for (let i = 0.1; i <= userCircleCount; i += 0.1) {
-    circleCount.push(parseFloat(i).toFixed(1));
-  }
+  const handleChangeOuter = (event) => {
+    // setOuterInput
+    setOuterInput(event.target.value);
+    // userInputOuter
+  };
   useEffect(() => {
     console.log("this ran");
     setNewArr(allCircles());
+    const renderArr = [];
+    for (let i = 0; i < 50; i++) {
+      renderArr.push(i);
+    }
+    setOuterSetCount(renderArr);
     // downloadExcel(newArr);
-  }, [age]);
+  }, [userInput]);
 
   console.log(newArr);
+  const exportZip = (blobs) => {
+    const zip = JSZip();
+    blobs.forEach((blob, i) => {
+      zip.file(`file-${i}.csv`, blob);
+    });
+    zip.generateAsync({ type: "blob" }).then((zipFile) => {
+      const currentDate = new Date().getTime();
+      const fileName = `combined-${currentDate}.zip`;
+      return FileSaver.saveAs(zipFile, fileName);
+    });
+  };
   const convertToExcel = (id) => {
     function exportData() {
       /* Get the HTML data using Element by Id */
@@ -117,11 +131,17 @@ const MapsMath = () => {
       });
       var encodedUri = encodeURI(csvContent);
       const fixedEncodedURI = encodedUri.replaceAll("#", "%23");
-      var link = document.createElement("a");
-      link.setAttribute("href", fixedEncodedURI);
-      link.setAttribute("download", "keywords.csv");
-      document.body.appendChild(link);
-      link.click();
+      console.log(csvContent);
+
+      // var zip = new JSZip();
+      // zip.file(`${i}.csv`, csvContent);
+      // exportZip(csvContent);
+
+      // var link = document.createElement("a");
+      // link.setAttribute("href", fixedEncodedURI);
+      // link.setAttribute("download", "keywords.csv");
+      // document.body.appendChild(link);
+      return fixedEncodedURI;
     }
     exportData();
   };
@@ -139,6 +159,7 @@ const MapsMath = () => {
         .filter(
           (ele, ind) => ele !== "name" && ele !== "" && ele !== "description"
         );
+      console.log(text, "THE FILE READER READS KEYWORDS");
       setSeoData(text);
       // console.log(text);
       alert("file uploaded");
@@ -157,6 +178,7 @@ const MapsMath = () => {
         .filter(
           (ele, ind) => ele !== "name" && ele !== "" && ele !== "description"
         );
+      console.log(text, "The file reader reads the descriptions");
       setKeyWord(text);
       // console.log(text);
       alert("file uploaded");
@@ -166,58 +188,94 @@ const MapsMath = () => {
     console.log(finalArr);
     // ;
   };
-  console.log(SeoData);
-  if (SeoData) {
-    console.log(SeoData.length);
-    const loopFunc = (SeoData) => {
-      const newArr = [];
-      for (let i = 0; i < 180; i++) {
-        for (let j = 0; j < SeoData.length; j++) {
-          newArr.push(SeoData[j]);
-        }
+
+  const shuffleArr = (array) => {
+    let shuffled = array
+      ?.map((value) => ({ value, sort: Math.random() }))
+      .sort((a, b) => a.sort - b.sort)
+      .map(({ value }) => value);
+    return shuffled;
+  };
+  const loopFunc = (uploadedFiles) => {
+    const newArr = [];
+    for (let i = 0; i < cordCount / uploadedFiles.length; i++) {
+      for (let j = 0; j < uploadedFiles.length; j++) {
+        newArr.push(uploadedFiles[j]);
       }
-      console.log(newArr);
-      console.log(newArr.length);
-      return newArr;
-    };
-    newSeoArr = loopFunc(SeoData);
-  } else {
-    console.log("upload a seo file ");
+    }
+    // const shuffedArr = shuffleArr(newArr);
+    return newArr;
+  };
+
+  let newSeoArr = [];
+  let newKeyWordArr = [];
+
+  SeoData &&
+    (newSeoArr = loopFunc(SeoData)) &&
+    KeyWord &&
+    (newKeyWordArr = loopFunc(KeyWord));
+
+  // begin
+  const finalTable = [];
+  const outerSetCounts = [];
+  if (userInputOuter) {
+    for (let i = 0; i < userInputOuter; i++) {
+      outerSetCounts.push(i);
+    }
   }
-  if (KeyWord) {
-    console.log(KeyWord.length);
-    const loopFunc = (KeyWord) => {
-      const newArr = [];
-      for (let i = 0; i < 180; i++) {
-        for (let j = 0; j < KeyWord.length; j++) {
-          newArr.push(KeyWord[j]);
-        }
-      }
-      console.log(newArr);
-      console.log(newArr.length);
-      return newArr;
-    };
-    newKeyWordArr = loopFunc(KeyWord);
-  } else {
-    console.log("upload a seo file ");
-  }
+
+  console.log(newSeoArr, newKeyWordArr, "VALUES TO RENDER");
+
+  const fillArr = () => {
+    for (let i = 0; i < outerSetCounts?.length; i++) {
+      let shuffleSeoArr = shuffleArr(newSeoArr);
+      let shuffleKeyArr = shuffleArr(newKeyWordArr);
+      finalTable.push({
+        seoArr: [...shuffleSeoArr],
+        keyArr: [...shuffleKeyArr],
+        cord: newArr,
+      });
+    }
+  };
+  fillArr();
+  console.log(finalTable, "finalTabel");
+  // const generateZip = () => {
+  //   const zip = require("jszip")();
+  //   // let files = event.target.files;
+  //   for (let file = 0; file < event.target.files.length; file++) {
+  //     // Zip file with the file name.
+  //     zip.file(files[file].name, files[file]);
+  //   }
+  //   zip.generateAsync({ type: "blob" }).then((content) => {
+  //     saveAs(content, "example.zip");
+  //   });
+  // };
   return (
     <>
       <div className="container">
-        <KeywordsUpload showFile={showFile} />
-        <DescriptionUpload showKeyword={showKeyword} />
-        <FormControl fullWidth>
+        <div>
+          <h1>
+            <span style={{ color: "Green", fontSize: "3rem" }}>◯</span> My Maps
+            Circles Generator
+          </h1>
+        </div>
+        <div className="flex">
+          <KeywordsUpload showFile={showFile} />
+          <DescriptionUpload showKeyword={showKeyword} />
+        </div>
+
+        <FormControl>
           <InputLabel
             sx={{ width: 300 }}
             // id="demo-simple-select-label"
           >
-            Circle Count
+            Select Number of Circle Data
           </InputLabel>
           <Select
             labelId="demo-simple-select-label"
             id="demo-simple-select"
-            value={age}
-            label="Age"
+            value={userInput}
+            label="userinput"
             onChange={handleChange}
             sx={{ width: 300 }}
           >
@@ -233,45 +291,37 @@ const MapsMath = () => {
             <MenuItem value={1}>10</MenuItem>
           </Select>
         </FormControl>
+        <FormControl sx={{ marginLeft: "1rem" }}>
+          <InputLabel
+            sx={{ width: 300 }}
+            // id="demo-simple-select-label"
+          >
+            Select Number of Sets
+          </InputLabel>
+          <Select
+            labelId="outer input"
+            id="out-select"
+            value={userInputOuter}
+            label="userinputOuter"
+            onChange={handleChangeOuter}
+            sx={{ width: 300 }}
+          >
+            {outerSetCount?.map((ele, ind) => (
+              <MenuItem value={ele + 1} key={ind}>
+                {ele + 1}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
         {/* <TextField id="outlined-basic" label="Outlined" variant="outlined" /> */}
       </div>
-      <div className="table-container">
-        {newArr?.map((ele, ind) => (
-          <div className="tabel_data" key={ind}>
-            {/* <Button onClick={() => downloadExcel()}>Click Me</Button> */}
-            <h2>Circle Number {ind + 1}</h2>
-            <Button
-              sx={{ margin: "1rem 0rem" }}
-              variant="contained"
-              onClick={(e) => getId(e)}
-            >
-              Get Circle
-            </Button>
-            {/* <Button onClick={() => mathFunc()}>Click Me</Button> */}
-            <table className="table" id={`circle${ind}`}>
-              <thead>
-                <tr>
-                  {/* <th>Keyword</th> */}
-                  <th>name</th>
-                  <th>description</th>
-                  <th>Latitude</th>
-                  <th>longitude</th>
-                </tr>
-              </thead>
-              <tbody className="tabel_body">
-                {ele?.map((el, rand) => (
-                  <tr className="tabel_row" key={rand + 1}>
-                    <td className="tabel__item">{newSeoArr[rand]}</td>
-                    <td className="tabel__item">{newKeyWordArr[rand]}</td>
-                    <td>{el.longitude}</td>
-                    <td>{el.latitude}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ))}
-      </div>
+      <Tables
+        newArr={newArr}
+        getId={getId}
+        newSeoArr={newSeoArr}
+        newKeyWordArr={newKeyWordArr}
+        outerArr={finalTable}
+      />
     </>
   );
 };
