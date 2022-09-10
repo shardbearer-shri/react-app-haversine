@@ -11,7 +11,8 @@ import DescriptionUpload from "./DescriptionUpload";
 import Tables from "./Tables";
 import JSZip from "jszip";
 import FileSaver from "file-saver";
-
+import Promise from "bluebird";
+import { Box } from "@mui/system";
 const MapsMath = (props) => {
   const [newArr, setNewArr] = useState([]);
   const circleCount = [];
@@ -20,12 +21,22 @@ const MapsMath = (props) => {
   const [outerSetCount, setOuterSetCount] = useState();
   const [SeoData, setSeoData] = useState();
   const [KeyWord, setKeyWord] = useState();
+  const [isLat, setLat] = useState();
+  const [isLong, setLong] = useState();
   // const [finalTable, setFinalTable] = useState([]);
 
   let cordCount = 10;
 
-  let centerLat = props.degToRad(72.9556716);
-  let centerLng = props.degToRad(19.1985743);
+  const getLat = (e) => {
+    setLat(e.target.value);
+  };
+  const getLong = (e) => {
+    setLong(e.target.value);
+  };
+  // 72.9556716
+  // 19.1985743
+  let centerLat = props.degToRad(isLat);
+  let centerLng = props.degToRad(isLong);
 
   for (let i = 0.1; i <= userInput; i += 0.1) {
     circleCount.push(parseFloat(i).toFixed(1));
@@ -92,60 +103,99 @@ const MapsMath = (props) => {
   }, [userInput]);
 
   console.log(newArr);
-  const exportZip = (blobs) => {
-    const zip = JSZip();
-    blobs.forEach((blob, i) => {
-      zip.file(`file-${i}.csv`, blob);
+  // const exportZip = (blobs) => {
+  //   const zip = JSZip();
+  //   blobs.forEach((blob, i) => {
+  //     zip.file(`file-${i}.csv`, blob);
+  //   });
+  //   zip.generateAsync({ type: "blob" }).then((zipFile) => {
+  //     const currentDate = new Date().getTime();
+  //     const fileName = `combined-${currentDate}.zip`;
+  //     return FileSaver.saveAs(zipFile, fileName);
+  //   });
+  // };
+
+  const circleIds = [];
+  const getAllIds = (e) => {
+    const allCircles = document.querySelectorAll(".table");
+    console.log(allCircles);
+    for (let i = 0; i < allCircles.length; i++) {
+      circleIds.push(allCircles[i].id);
+    }
+    console.log(circleIds);
+  };
+  const saveZip = (filename, urls) => {
+    if (!urls) return;
+
+    const zip = new JSZip();
+    const folder = zip.folder("files"); // folder name where all files will be placed in
+
+    urls.forEach((url, ind) => {
+      folder.file(`Circle${ind}.csv`, url);
     });
-    zip.generateAsync({ type: "blob" }).then((zipFile) => {
-      const currentDate = new Date().getTime();
-      const fileName = `combined-${currentDate}.zip`;
-      return FileSaver.saveAs(zipFile, fileName);
+
+    // Generate the zip file asynchronously
+    zip.generateAsync({ type: "blob" }).then(function (content) {
+      // Force down of the Zip file
+      FileSaver.saveAs(content, "archive.zip");
     });
   };
-  const convertToExcel = (id) => {
+  const convertToExcel = () => {
     function exportData() {
       /* Get the HTML data using Element by Id */
-      var table = document.getElementById(`${id}`);
+      const allURLS = [];
+      circleIds?.forEach((ele, ind) => {
+        var table = document.getElementById(`${ele}`);
+        console.log(table);
+        /* Declaring array variable */
+        var rows = [];
 
-      /* Declaring array variable */
-      var rows = [];
+        //iterate through rows of table
+        for (var i = 0, row; (row = table.rows[i]); i++) {
+          //rows would be accessed using the "row" variable assigned in the for loop
+          //Get each cell value/column from the row
+          var column1 = row.cells[0].innerText;
+          var column2 = row.cells[1].innerText;
+          var column3 = row.cells[2].innerText;
+          var column4 = row.cells[3].innerText;
 
-      //iterate through rows of table
-      for (var i = 0, row; (row = table.rows[i]); i++) {
-        //rows would be accessed using the "row" variable assigned in the for loop
-        //Get each cell value/column from the row
-        var column1 = row.cells[0].innerText;
-        var column2 = row.cells[1].innerText;
-        var column3 = row.cells[2].innerText;
-        var column4 = row.cells[3].innerText;
+          /* add a new records in the array */
+          rows.push([column1, column2, column3, column4]);
+        }
+        let csvContent = "data:text/csv;charset=utf-8,";
+        /* add the column delimiter as comma(,) and each row splitted by new line character (\n) */
+        // rows.forEach(function (rowArray) {
+        //   row = rowArray.join(",");
+        //   csvContent += row + "\r\n";
+        // });
+        var csvFile = rows.map((e) => e.join(",")).join("\n");
+        var encodedUri = encodeURI(csvContent);
 
-        /* add a new records in the array */
-        rows.push([column1, column2, column3, column4]);
-      }
-      let csvContent = "data:text/csv;charset=utf-8,";
-      /* add the column delimiter as comma(,) and each row splitted by new line character (\n) */
-      rows.forEach(function (rowArray) {
-        row = rowArray.join(",");
-        csvContent += row + "\r\n";
+        const fixedEncodedURI = encodedUri.replaceAll("#", "%23");
+        allURLS.push(csvFile);
+
+        // main zip code
+
+        // let zip = new JSZip();
+        // zip.file(`${i}.csv`, csvFile);
+        // zip.generateAsync({ type: "base64" }).then(function (content) {
+        //   window.location.href = "data:application/zip;base64," + content;
+        // });
+
+        // console.log(fixedEncodedURI, "all the data for csv");
+        // return fixedEncodedURI;
       });
-      var encodedUri = encodeURI(csvContent);
-      const fixedEncodedURI = encodedUri.replaceAll("#", "%23");
-      console.log(csvContent);
-
-      // var zip = new JSZip();
-      // zip.file(`${i}.csv`, csvContent);
-      // exportZip(csvContent);
-
-      // var link = document.createElement("a");
-      // link.setAttribute("href", fixedEncodedURI);
-      // link.setAttribute("download", "keywords.csv");
-      // document.body.appendChild(link);
-      return fixedEncodedURI;
+      console.log(allURLS);
+      saveZip("alCircles", allURLS);
     }
     exportData();
   };
-
+  // if (circleIds) {
+  //   circleIds.forEach((ele, ind) => {
+  //     convertToExcel(ele);
+  //   });
+  //   // convertToExcel
+  // }
   const getId = (e) => {
     const id = e.target.parentElement.lastChild.id;
     convertToExcel(id);
@@ -239,17 +289,49 @@ const MapsMath = (props) => {
   };
   fillArr();
   console.log(finalTable, "finalTabel");
-  // const generateZip = () => {
-  //   const zip = require("jszip")();
-  //   // let files = event.target.files;
-  //   for (let file = 0; file < event.target.files.length; file++) {
-  //     // Zip file with the file name.
-  //     zip.file(files[file].name, files[file]);
-  //   }
-  //   zip.generateAsync({ type: "blob" }).then((content) => {
-  //     saveAs(content, "example.zip");
-  //   });
-  // };
+
+  const getAllZips = (urlsF) => {
+    const download = (urlsF) => {
+      return fetch(urlsF).then((resp) => resp.blob());
+    };
+    // console.log(download());
+    const downloadViaBrowser = (url) => {
+      window.open(url, "_blank");
+    };
+    downloadViaBrowser(urlsF);
+    // download();
+    // const downloadMany = (urls) => {
+    //   return Promise.all(urls.map((url) => download(url)));
+    // };
+    const downloadByGroup = (urls, files_per_group = 5) => {
+      return Promise.map(
+        urls,
+        async (url) => {
+          return await download(url);
+        },
+        { concurrency: files_per_group }
+      );
+    };
+    const exportZip = (blobs) => {
+      const zip = JSZip();
+      blobs.forEach((blob, i) => {
+        zip.file(`file-${i}.csv`, blob);
+      });
+      zip.generateAsync({ type: "blob" }).then((zipFile) => {
+        const currentDate = new Date().getTime();
+        const fileName = `combined-${currentDate}.zip`;
+        return FileSaver.saveAs(zipFile, fileName);
+      });
+    };
+    const downloadAndZip = (allUrls) => {
+      return downloadByGroup(allUrls, 5).then(exportZip);
+    };
+    // downloadAndZip();
+  };
+  // getAllZips(
+  //   "data:text/csv;charset=utf-8,name,description,Latitude,longitude%0D%0ASySpree%20is%20the%20best%20website%20design%20company%20in%20mumbai%20Website:https://syspree.com/,graphic%20designing%20company%20in%20mumbai%20%7C%20SySpree,19.1985743,72.95926923182263%0D%0ASySpree%20is%20the%20best%20Graphic%20Design%20Company%20in%20Mumbai%20Website:https://syspree.com/,logo%20design%20company%20in%20mumbai%20%7C%20SySpree,19.198627858257836,72.95926868382625%0D%0ASySpree%20is%20the%20best%20website%20design%20company%20in%20mumbai%20Website:https://syspree.com/,Web%20design%20company%20in%20Mumbai%20%7C%20SySpree,19.198681400191283,72.95926704000415%0D%0ASySpree%20is%20the%20best%20Graphic%20Design%20Company%20in%20Mumbai%20Website:https://syspree.com/,Web%20design%20company%20in%20Mumbai%20%7C%20SySpree,19.198734909480937,72.95926430085738%0D%0ASySpree%20is%20the%20best%20graphic%20designing%20company%20in%20mumbai%20Website:https://syspree.com/,website%20design%20company%20in%20mumbai%20%7C%20SySpree,19.19878836981737,72.95926046722077%0D%0ASySpree%20is%20the%20best%20graphic%20designing%20company%20in%20mumbai%20Website:https://syspree.com/,Graphic%20Design%20Company%20in%20Mumbai%20%7C%20SySpree,19.198841764906096,72.95925554026286%0D%0ASySpree%20is%20the%20best%20graphic%20designing%20company%20in%20mumbai%20Website:https://syspree.com/,graphic%20designing%20company%20in%20mumbai%20%7C%20SySpree,19.198895078472546,72.95924952148532%0D%0ASySpree%20is%20the%20best%20Web%20design%20company%20in%20Mumbai%20Website:https://syspree.com/,Graphic%20Design%20Company%20in%20Mumbai%20%7C%20SySpree,19.198948294267062,72.95924241272269%0D%0ASySpree%20is%20the%20best%20Web%20design%20company%20in%20Mumbai%20Website:https://syspree.com/,logo%20design%20company%20in%20mumbai%20%7C%20SySpree,19.19900139606982,72.95923421614164%0D%0ASySpree%20is%20the%20best%20Web%20design%20company%20in%20Mumbai%20Website:https://syspree.com/,Web%20design%20company%20in%20Mumbai%20%7C%20SySpree,19.199054367695823,72.95922493424052%0D%0A",
+  // );
+
   return (
     <>
       <div className="container">
@@ -263,6 +345,23 @@ const MapsMath = (props) => {
           <KeywordsUpload showFile={showFile} />
           <DescriptionUpload showKeyword={showKeyword} />
         </div>
+
+        <Box sx={{ display: "flex", gap: "1rem", margin: "1rem 0rem" }}>
+          <TextField
+            id="outlined-basic"
+            label="Latitude"
+            variant="outlined"
+            onChange={(e) => getLat(e)}
+            type="number"
+          />
+          <TextField
+            type="number"
+            id="outlined-basic"
+            label="Longitude"
+            variant="outlined"
+            onChange={(e) => getLong(e)}
+          />
+        </Box>
 
         <FormControl>
           <InputLabel
@@ -321,6 +420,8 @@ const MapsMath = (props) => {
         newSeoArr={newSeoArr}
         newKeyWordArr={newKeyWordArr}
         outerArr={finalTable}
+        getAllIds={getAllIds}
+        convertToExcel={convertToExcel}
       />
     </>
   );
