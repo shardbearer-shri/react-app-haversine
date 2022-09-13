@@ -25,7 +25,7 @@ const MapsMath = (props) => {
   const [isLong, setLong] = useState();
   // const [finalTable, setFinalTable] = useState([]);
 
-  let cordCount = 10;
+  let cordCount = 2000;
 
   const getLat = (e) => {
     setLat(e.target.value);
@@ -103,17 +103,7 @@ const MapsMath = (props) => {
   }, [userInput]);
 
   console.log(newArr);
-  // const exportZip = (blobs) => {
-  //   const zip = JSZip();
-  //   blobs.forEach((blob, i) => {
-  //     zip.file(`file-${i}.csv`, blob);
-  //   });
-  //   zip.generateAsync({ type: "blob" }).then((zipFile) => {
-  //     const currentDate = new Date().getTime();
-  //     const fileName = `combined-${currentDate}.zip`;
-  //     return FileSaver.saveAs(zipFile, fileName);
-  //   });
-  // };
+
 
   const circleIds = [];
   const getAllIds = (e) => {
@@ -163,27 +153,13 @@ const MapsMath = (props) => {
           rows.push([column1, column2, column3, column4]);
         }
         let csvContent = "data:text/csv;charset=utf-8,";
-        /* add the column delimiter as comma(,) and each row splitted by new line character (\n) */
-        // rows.forEach(function (rowArray) {
-        //   row = rowArray.join(",");
-        //   csvContent += row + "\r\n";
-        // });
+
         var csvFile = rows.map((e) => e.join(",")).join("\n");
         var encodedUri = encodeURI(csvContent);
 
         const fixedEncodedURI = encodedUri.replaceAll("#", "%23");
         allURLS.push(csvFile);
 
-        // main zip code
-
-        // let zip = new JSZip();
-        // zip.file(`${i}.csv`, csvFile);
-        // zip.generateAsync({ type: "base64" }).then(function (content) {
-        //   window.location.href = "data:application/zip;base64," + content;
-        // });
-
-        // console.log(fixedEncodedURI, "all the data for csv");
-        // return fixedEncodedURI;
       });
       console.log(allURLS);
       saveZip("alCircles", allURLS);
@@ -290,44 +266,45 @@ const MapsMath = (props) => {
   fillArr();
   console.log(finalTable, "finalTabel");
 
-  const getAllZips = (urlsF) => {
-    const download = (urlsF) => {
-      return fetch(urlsF).then((resp) => resp.blob());
-    };
-    // console.log(download());
-    const downloadViaBrowser = (url) => {
-      window.open(url, "_blank");
-    };
-    downloadViaBrowser(urlsF);
-    // download();
-    // const downloadMany = (urls) => {
-    //   return Promise.all(urls.map((url) => download(url)));
-    // };
-    const downloadByGroup = (urls, files_per_group = 5) => {
-      return Promise.map(
-        urls,
-        async (url) => {
-          return await download(url);
-        },
-        { concurrency: files_per_group }
-      );
-    };
-    const exportZip = (blobs) => {
-      const zip = JSZip();
-      blobs.forEach((blob, i) => {
-        zip.file(`file-${i}.csv`, blob);
-      });
-      zip.generateAsync({ type: "blob" }).then((zipFile) => {
-        const currentDate = new Date().getTime();
-        const fileName = `combined-${currentDate}.zip`;
-        return FileSaver.saveAs(zipFile, fileName);
-      });
-    };
-    const downloadAndZip = (allUrls) => {
-      return downloadByGroup(allUrls, 5).then(exportZip);
-    };
-    // downloadAndZip();
-  };
+  // const getAllZips = (urlsF) => {
+  //   const download = (urlsF) => {
+  //     return fetch(urlsF).then((resp) => resp.blob());
+  //   };
+  //   // console.log(download());
+  //   const downloadViaBrowser = (url) => {
+  //     window.open(url, "_blank");
+  //   };
+  //   downloadViaBrowser(urlsF);
+  //   // download();
+  //   // const downloadMany = (urls) => {
+  //   //   return Promise.all(urls.map((url) => download(url)));
+  //   // };
+  //   const downloadByGroup = (urls, files_per_group = 5) => {
+  //     return Promise.map(
+  //       urls,
+  //       async (url) => {
+  //         return await download(url);
+  //       },
+  //       { concurrency: files_per_group }
+  //     );
+  //   };
+  //   const exportZip = (blobs) => {
+  //     const zip = JSZip();
+  //     blobs.forEach((blob, i) => {
+  //       zip.file(`file-${i}.csv`, blob);
+  //     });
+  //     zip.generateAsync({ type: "blob" }).then((zipFile) => {
+  //       const currentDate = new Date().getTime();
+  //       const fileName = `combined-${currentDate}.zip`;
+  //       return FileSaver.saveAs(zipFile, fileName);
+  //     });
+  //   };
+  //   const downloadAndZip = (allUrls) => {
+  //     return downloadByGroup(allUrls, 5).then(exportZip);
+  //   };
+  //   // downloadAndZip();
+  // };
+
   // getAllZips(
   //   "data:text/csv;charset=utf-8,name,description,Latitude,longitude%0D%0ASySpree%20is%20the%20best%20website%20design%20company%20in%20mumbai%20Website:https://syspree.com/,graphic%20designing%20company%20in%20mumbai%20%7C%20SySpree,19.1985743,72.95926923182263%0D%0ASySpree%20is%20the%20best%20Graphic%20Design%20Company%20in%20Mumbai%20Website:https://syspree.com/,logo%20design%20company%20in%20mumbai%20%7C%20SySpree,19.198627858257836,72.95926868382625%0D%0ASySpree%20is%20the%20best%20website%20design%20company%20in%20mumbai%20Website:https://syspree.com/,Web%20design%20company%20in%20Mumbai%20%7C%20SySpree,19.198681400191283,72.95926704000415%0D%0ASySpree%20is%20the%20best%20Graphic%20Design%20Company%20in%20Mumbai%20Website:https://syspree.com/,Web%20design%20company%20in%20Mumbai%20%7C%20SySpree,19.198734909480937,72.95926430085738%0D%0ASySpree%20is%20the%20best%20graphic%20designing%20company%20in%20mumbai%20Website:https://syspree.com/,website%20design%20company%20in%20mumbai%20%7C%20SySpree,19.19878836981737,72.95926046722077%0D%0ASySpree%20is%20the%20best%20graphic%20designing%20company%20in%20mumbai%20Website:https://syspree.com/,Graphic%20Design%20Company%20in%20Mumbai%20%7C%20SySpree,19.198841764906096,72.95925554026286%0D%0ASySpree%20is%20the%20best%20graphic%20designing%20company%20in%20mumbai%20Website:https://syspree.com/,graphic%20designing%20company%20in%20mumbai%20%7C%20SySpree,19.198895078472546,72.95924952148532%0D%0ASySpree%20is%20the%20best%20Web%20design%20company%20in%20Mumbai%20Website:https://syspree.com/,Graphic%20Design%20Company%20in%20Mumbai%20%7C%20SySpree,19.198948294267062,72.95924241272269%0D%0ASySpree%20is%20the%20best%20Web%20design%20company%20in%20Mumbai%20Website:https://syspree.com/,logo%20design%20company%20in%20mumbai%20%7C%20SySpree,19.19900139606982,72.95923421614164%0D%0ASySpree%20is%20the%20best%20Web%20design%20company%20in%20Mumbai%20Website:https://syspree.com/,Web%20design%20company%20in%20Mumbai%20%7C%20SySpree,19.199054367695823,72.95922493424052%0D%0A",
   // );
@@ -353,6 +330,7 @@ const MapsMath = (props) => {
             variant="outlined"
             onChange={(e) => getLat(e)}
             type="number"
+            // autoComplete={true}
           />
           <TextField
             type="number"
