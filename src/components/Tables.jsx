@@ -4,7 +4,7 @@ import { Button } from "@mui/material";
 const Tables = (props) => {
   return (
     <>
-      <Button
+      {/* <Button
         variant="contained"
         onClick={(e) => {
           props.getAllIds(e);
@@ -12,7 +12,7 @@ const Tables = (props) => {
         }}
       >
         GET ALL CIRCLES
-      </Button>
+      </Button> */}
       <div id="allTableContainer">
         {props.outerArr.map((outerEle, outerInd) => (
           <div
@@ -20,18 +20,18 @@ const Tables = (props) => {
             key={outerInd}
             id={`table${outerInd + 1}`}
           >
-            <h1>Table {outerInd + 1}</h1>
+            {/* <h1>Table {outerInd + 1}</h1> */}
             {props.newArr?.map((ele, ind) => (
               <div className="tabel_data" key={ind}>
                 {/* <Button onClick={() => downloadExcel()}>Click Me</Button> */}
                 <h2>Circle Number {ind + 1}</h2>
-                <Button
+                {/* <Button
                   sx={{ margin: "1rem 0rem" }}
                   variant="contained"
                   onClick={(e) => props.getId(e)}
                 >
                   Get Circle
-                </Button>
+                </Button> */}
                 {/* <Button onClick={() => mathFunc()}>Click Me</Button> */}
                 <table className="table" id={`Set${outerInd + 1}circle${ind}`}>
                   <thead>

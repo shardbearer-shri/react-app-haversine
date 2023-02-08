@@ -13,11 +13,12 @@ import JSZip from "jszip";
 import FileSaver from "file-saver";
 import Promise from "bluebird";
 import { Box } from "@mui/system";
+import { parse, unparse } from "papaparse";
 const MapsMath = (props) => {
   const [newArr, setNewArr] = useState([]);
   const circleCount = [];
   const [userInput, setUserInput] = useState("");
-  const [userInputOuter, setOuterInput] = useState("");
+  const [userInputOuter, setOuterInput] = useState(1);
   const [outerSetCount, setOuterSetCount] = useState();
   const [SeoData, setSeoData] = useState();
   const [KeyWord, setKeyWord] = useState();
@@ -25,7 +26,7 @@ const MapsMath = (props) => {
   const [isLong, setLong] = useState();
   // const [finalTable, setFinalTable] = useState([]);
 
-  let cordCount = 2000;
+  let cordCount = 5;
 
   const getLat = (e) => {
     setLat(e.target.value);
@@ -35,13 +36,13 @@ const MapsMath = (props) => {
   };
   // 72.9556716
   // 19.1985743
-  let centerLat = props.degToRad(isLat);
-  let centerLng = props.degToRad(isLong);
+  let centerLat = props.degToRad(72.9556716);
+  let centerLng = props.degToRad(19.1985743);
 
   for (let i = 0.1; i <= userInput; i += 0.1) {
     circleCount.push(parseFloat(i).toFixed(1));
   }
-  console.log(circleCount, "circle count");
+  // console.log(circleCount, "circle count");
   // function to get latitude and longitude pure which takes in the diameter value from user input state
   const mathFunc = (diam) => {
     let diameter = diam; // diameter of circle in km
@@ -80,8 +81,8 @@ const MapsMath = (props) => {
     return alldata;
   };
 
-  // console.log(alldata);
-  // console.log(dataArr, "loop array");
+  // // console.log(alldata);
+  // // console.log(dataArr, "loop array");
   const handleChange = (event) => {
     setUserInput(event.target.value);
     setNewArr(allCircles());
@@ -92,7 +93,7 @@ const MapsMath = (props) => {
     // userInputOuter
   };
   useEffect(() => {
-    console.log("this ran");
+    // console.log("this ran");
     setNewArr(allCircles());
     const renderArr = [];
     for (let i = 0; i < 50; i++) {
@@ -102,17 +103,16 @@ const MapsMath = (props) => {
     // downloadExcel(newArr);
   }, [userInput]);
 
-  console.log(newArr);
-
+  // console.log(newArr);
 
   const circleIds = [];
   const getAllIds = (e) => {
     const allCircles = document.querySelectorAll(".table");
-    console.log(allCircles);
+    // console.log(allCircles);
     for (let i = 0; i < allCircles.length; i++) {
       circleIds.push(allCircles[i].id);
     }
-    console.log(circleIds);
+    // console.log(circleIds);
   };
   const saveZip = (filename, urls) => {
     if (!urls) return;
@@ -136,7 +136,7 @@ const MapsMath = (props) => {
       const allURLS = [];
       circleIds?.forEach((ele, ind) => {
         var table = document.getElementById(`${ele}`);
-        console.log(table);
+        // // console.log(table);
         /* Declaring array variable */
         var rows = [];
 
@@ -159,9 +159,8 @@ const MapsMath = (props) => {
 
         const fixedEncodedURI = encodedUri.replaceAll("#", "%23");
         allURLS.push(csvFile);
-
       });
-      console.log(allURLS);
+      // console.log(allURLS);
       saveZip("alCircles", allURLS);
     }
     exportData();
@@ -185,14 +184,14 @@ const MapsMath = (props) => {
         .filter(
           (ele, ind) => ele !== "name" && ele !== "" && ele !== "description"
         );
-      console.log(text, "THE FILE READER READS KEYWORDS");
+      // console.log(text, "THE FILE READER READS KEYWORDS");
       setSeoData(text);
-      // console.log(text);
+      // // console.log(text);
       alert("file uploaded");
       //   alert(text);
     };
     const finalArr = reader.readAsText(e.target.files[0]);
-    console.log(finalArr);
+    // console.log(finalArr);
     // ;
   };
   const showKeyword = async (e) => {
@@ -204,14 +203,14 @@ const MapsMath = (props) => {
         .filter(
           (ele, ind) => ele !== "name" && ele !== "" && ele !== "description"
         );
-      console.log(text, "The file reader reads the descriptions");
+      // console.log(text, "The file reader reads the descriptions");
       setKeyWord(text);
-      // console.log(text);
+      // // console.log(text);
       alert("file uploaded");
       //   alert(text);
     };
     const finalArr = reader.readAsText(e.target.files[0]);
-    console.log(finalArr);
+    // console.log(finalArr);
     // ;
   };
 
@@ -250,27 +249,51 @@ const MapsMath = (props) => {
     }
   }
 
-  console.log(newSeoArr, newKeyWordArr, "VALUES TO RENDER");
-
+  // console.log(newSeoArr, newKeyWordArr, "VALUES TO RENDER");
+  function downloadObjectAsJson(exportObj, exportName) {
+    var dataStr =
+      "data:text/json;charset=utf-8," +
+      encodeURIComponent(JSON.stringify(exportObj));
+    var downloadAnchorNode = document.createElement("a");
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", exportName + ".json");
+    document.body.appendChild(downloadAnchorNode); // required for firefox
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+  }
+  console.log(newArr);
   const fillArr = () => {
     for (let i = 0; i < outerSetCounts?.length; i++) {
+      // console.log(newArr[i][0], "INSIDE THE LOOP", i);
       let shuffleSeoArr = shuffleArr(newSeoArr);
       let shuffleKeyArr = shuffleArr(newKeyWordArr);
       finalTable.push({
         seoArr: [...shuffleSeoArr],
         keyArr: [...shuffleKeyArr],
-        cord: newArr,
+        latitude: newArr[i]?.latitude,
+        // cord: newArr,
       });
     }
   };
+  console.log(finalTable, "MAIN ARRAY");
+
   fillArr();
+  // for (let i = 0; i < 10; i++) {
+  //   setInterval(fillArr(), 5000);
+
+  //   // myTimeout();
+  //   // console.log("render layout ", i, "number of times");
+  // }
+  // // console.log(unparse(finalTable));
+
+  // downloadObjectAsJson(finalTable, "newjson");
   console.log(finalTable, "finalTabel");
 
   // const getAllZips = (urlsF) => {
   //   const download = (urlsF) => {
   //     return fetch(urlsF).then((resp) => resp.blob());
   //   };
-  //   // console.log(download());
+  //   // // console.log(download());
   //   const downloadViaBrowser = (url) => {
   //     window.open(url, "_blank");
   //   };
@@ -329,7 +352,9 @@ const MapsMath = (props) => {
             label="Latitude"
             variant="outlined"
             onChange={(e) => getLat(e)}
+            // value={72.9556716}
             type="number"
+            // 72.9556716
             // autoComplete={true}
           />
           <TextField
@@ -337,6 +362,7 @@ const MapsMath = (props) => {
             id="outlined-basic"
             label="Longitude"
             variant="outlined"
+            // value={19.1985743}
             onChange={(e) => getLong(e)}
           />
         </Box>
@@ -375,7 +401,7 @@ const MapsMath = (props) => {
           >
             Select Number of Sets
           </InputLabel>
-          <Select
+          {/* <Select
             labelId="outer input"
             id="out-select"
             value={userInputOuter}
@@ -388,10 +414,24 @@ const MapsMath = (props) => {
                 {ele + 1}
               </MenuItem>
             ))}
-          </Select>
+          </Select> */}
         </FormControl>
+        <div>
+          <Button
+            variant="outlined"
+            sx={{ marginTop: "1rem" }}
+            onClick={(e) => {
+              getAllIds(e);
+              convertToExcel();
+            }}
+          >
+            GET ALL CIRCLES
+          </Button>
+        </div>
+
         {/* <TextField id="outlined-basic" label="Outlined" variant="outlined" /> */}
       </div>
+
       <Tables
         newArr={newArr}
         getId={getId}
