@@ -13,7 +13,8 @@ import JSZip from "jszip";
 import FileSaver from "file-saver";
 import Promise from "bluebird";
 import { Box } from "@mui/system";
-import { parse, unparse } from "papaparse";
+import { Parser } from "@json2csv/plainjs";
+// import { parse, unparse } from "papaparse";
 const MapsMath = (props) => {
   const [newArr, setNewArr] = useState([]);
   const circleCount = [];
@@ -26,7 +27,7 @@ const MapsMath = (props) => {
   const [isLong, setLong] = useState();
   // const [finalTable, setFinalTable] = useState([]);
 
-  let cordCount = 5;
+  let cordCount = 2000;
 
   const getLat = (e) => {
     setLat(e.target.value);
@@ -44,7 +45,7 @@ const MapsMath = (props) => {
   }
   // console.log(circleCount, "circle count");
   // function to get latitude and longitude pure which takes in the diameter value from user input state
-  const mathFunc = (diam) => {
+  const mathFunc = (diam, keywords, descriptions) => {
     let diameter = diam; // diameter of circle in km
     let dist = diameter / 6371.0;
     let allCord = [];
@@ -63,17 +64,22 @@ const MapsMath = (props) => {
         );
       // radians_to_degrees(longitude) radians_to_degrees(latitude)
       allCord.push({
+        name: keywords?.[x],
+        description: descriptions?.[x],
         longitude: props.radToDeg(longitude),
         latitude: props.radToDeg(latitude),
       });
     }
+    console.log(allCord, "all cordinates");
     return allCord;
   };
 
-  const allCircles = () => {
+  const allCircles = (keywords, descriptions) => {
+    console.log(keywords);
+    console.log(descriptions);
     const alldata = [];
     circleCount.forEach((ele, ind) => {
-      const circleCords = mathFunc(ele);
+      const circleCords = mathFunc(ele, keywords, descriptions);
       alldata.push(circleCords);
       // const data = [alldata[ind]];
       // const fileName = "download";
@@ -85,23 +91,23 @@ const MapsMath = (props) => {
   // // console.log(dataArr, "loop array");
   const handleChange = (event) => {
     setUserInput(event.target.value);
-    setNewArr(allCircles());
+    // mainFunc();
   };
   const handleChangeOuter = (event) => {
     // setOuterInput
     setOuterInput(event.target.value);
     // userInputOuter
   };
-  useEffect(() => {
-    // console.log("this ran");
-    setNewArr(allCircles());
-    const renderArr = [];
-    for (let i = 0; i < 50; i++) {
-      renderArr.push(i);
-    }
-    setOuterSetCount(renderArr);
-    // downloadExcel(newArr);
-  }, [userInput]);
+  // useEffect(() => {
+  //   // console.log("this ran");
+  //   setNewArr(allCircles());
+  //   const renderArr = [];
+  //   for (let i = 0; i < 50; i++) {
+  //     renderArr.push(i);
+  //   }
+  //   setOuterSetCount(renderArr);
+  //   // downloadExcel(newArr);
+  // }, [newArr]);
 
   // console.log(newArr);
 
@@ -184,7 +190,7 @@ const MapsMath = (props) => {
         .filter(
           (ele, ind) => ele !== "name" && ele !== "" && ele !== "description"
         );
-      // console.log(text, "THE FILE READER READS KEYWORDS");
+      console.log(text, "THE FILE READER READS KEYWORDS");
       setSeoData(text);
       // // console.log(text);
       alert("file uploaded");
@@ -203,7 +209,7 @@ const MapsMath = (props) => {
         .filter(
           (ele, ind) => ele !== "name" && ele !== "" && ele !== "description"
         );
-      // console.log(text, "The file reader reads the descriptions");
+      console.log(text, "The file reader reads the descriptions");
       setKeyWord(text);
       // // console.log(text);
       alert("file uploaded");
@@ -235,11 +241,30 @@ const MapsMath = (props) => {
   let newSeoArr = [];
   let newKeyWordArr = [];
 
-  SeoData &&
-    (newSeoArr = loopFunc(SeoData)) &&
-    KeyWord &&
-    (newKeyWordArr = loopFunc(KeyWord));
+  // SeoData &&
+  //   (newSeoArr = loopFunc(SeoData)) &&
+  //   KeyWord &&
+  //   (newKeyWordArr = loopFunc(KeyWord));
 
+  useEffect(() => {
+    if (SeoData && KeyWord) {
+      newSeoArr = loopFunc(SeoData);
+      newKeyWordArr = loopFunc(KeyWord);
+      console.log(newSeoArr, "init");
+      setNewArr(allCircles(newSeoArr, newKeyWordArr));
+      try {
+        const parser = new Parser();
+        const csv = parser.parse(newArr?.[0]);
+        console.log(csv, "ARRAY TO CSV");
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    // console.log(newArr ? JSON.parse(newArr) : "");
+  }, [userInput]);
+  console.log(newArr[0], "NEW ARRR FOR JSON TO CSV");
+
+  // JSON.parse(newArr)
   // begin
   const finalTable = [];
   const outerSetCounts = [];
@@ -270,8 +295,8 @@ const MapsMath = (props) => {
       finalTable.push({
         seoArr: [...shuffleSeoArr],
         keyArr: [...shuffleKeyArr],
-        latitude: newArr[i]?.latitude,
-        // cord: newArr,
+        // latitude: newArr[i]?.latitude,
+        cord: newArr,
       });
     }
   };
@@ -345,7 +370,16 @@ const MapsMath = (props) => {
           <KeywordsUpload showFile={showFile} />
           <DescriptionUpload showKeyword={showKeyword} />
         </div>
-
+        <Box sx={{ display: "flex", gap: "1rem", margin: "1rem 0rem" }}>
+          <div>
+            <h2>Latitude Test</h2>
+            <p>72.9556716</p>
+          </div>
+          <div>
+            <h2>Longitude Test</h2>
+            <p>19.1985743</p>
+          </div>
+        </Box>
         <Box sx={{ display: "flex", gap: "1rem", margin: "1rem 0rem" }}>
           <TextField
             id="outlined-basic"
@@ -416,7 +450,7 @@ const MapsMath = (props) => {
             ))}
           </Select> */}
         </FormControl>
-        <div>
+        {/* <div>
           <Button
             variant="outlined"
             sx={{ marginTop: "1rem" }}
@@ -427,12 +461,12 @@ const MapsMath = (props) => {
           >
             GET ALL CIRCLES
           </Button>
-        </div>
+        </div> */}
 
         {/* <TextField id="outlined-basic" label="Outlined" variant="outlined" /> */}
       </div>
 
-      <Tables
+      {/* <Tables
         newArr={newArr}
         getId={getId}
         newSeoArr={newSeoArr}
@@ -440,7 +474,7 @@ const MapsMath = (props) => {
         outerArr={finalTable}
         getAllIds={getAllIds}
         convertToExcel={convertToExcel}
-      />
+      /> */}
     </>
   );
 };
