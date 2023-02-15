@@ -158,12 +158,12 @@ const MapsMath = (props) => {
           /* add a new records in the array */
           rows.push([column1, column2, column3, column4]);
         }
-        let csvContent = "data:text/csv;charset=utf-8,";
+        // let csvContent = "data:text/csv;charset=utf-8,";
 
         var csvFile = rows.map((e) => e.join(",")).join("\n");
-        var encodedUri = encodeURI(csvContent);
+        // var encodedUri = encodeURI(csvContent);
 
-        const fixedEncodedURI = encodedUri.replaceAll("#", "%23");
+        // const fixedEncodedURI = encodedUri.replaceAll("#", "%23");
         allURLS.push(csvFile);
       });
       // console.log(allURLS);
@@ -171,6 +171,7 @@ const MapsMath = (props) => {
     }
     exportData();
   };
+
   // if (circleIds) {
   //   circleIds.forEach((ele, ind) => {
   //     convertToExcel(ele);
@@ -252,18 +253,30 @@ const MapsMath = (props) => {
       newKeyWordArr = loopFunc(KeyWord);
       console.log(newSeoArr, "init");
       setNewArr(allCircles(newSeoArr, newKeyWordArr));
-      try {
-        const parser = new Parser();
-        const csv = parser.parse(newArr?.[0]);
-        console.log(csv, "ARRAY TO CSV");
-      } catch (err) {
-        console.error(err);
-      }
     }
     // console.log(newArr ? JSON.parse(newArr) : "");
   }, [userInput]);
-  console.log(newArr[0], "NEW ARRR FOR JSON TO CSV");
+  // console.log(newArr[0], "NEW ARRR FOR JSON TO CSV");
+  const opts = {
+    fields: ["name", "description", "longitude", "latitude"],
+  };
+  const parser = new Parser(opts);
+  const csvArr = [];
+  const csv = parser.parse(newArr?.[0]);
+  
+  const newSaveZip = (csvData) => {
+    saveZip("newCircle", csvData);
+  };
 
+  if (csvArr) {
+    csvArr.push(csv);
+    newSaveZip(csvArr)
+  }
+  console.log(csv, "ARRAY TO CSV");
+
+  // const saveAsZip => () {
+
+  // }
   // JSON.parse(newArr)
   // begin
   const finalTable = [];
