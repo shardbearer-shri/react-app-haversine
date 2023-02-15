@@ -1,70 +1,72 @@
-# Getting Started with Create React App
-
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
-
-## Available Scripts
-
-In the project directory, you can run:
 
 ### `npm start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### `App functionality`
 
-### `npm test`
+The app has multiple modules and depencies based on which a collection is built of 10 files which is also one set.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Modules include
+-   Math function
+-   A lat long value to radian converter
+-   A function to save files which takes in the urls as values to save
+-   A function to map over every table to generate csv files based on tables and rows.
+-   A function to shuffle the arrays each time a new loop starts
+-   An input value that would initiate the process and also determine the number of files a single set would hold.
 
-### `npm run build`
+### `Fixed values`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+There are multiple fixed values in the creation of the data sets
+-   A fixed value for the number of times the loop has to iterate and also determines the number of rows to be kept in a single file within a set
+-   A fixed value for a specific coordinate that would render the structure into a circle, this value exists within the math function and can be interchanged between `4` and `2` as this determines the structure of the circle
+-   the get all circles button would download the data set generated into an archived zip file
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+# `Problems`
 
-### `npm run eject`
+1. Currently the code is setup on many dependent functions which all work in a single script.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+2. A code rewrite would be necessarry to implement a better solution
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+3. The shuffling currently shuffles individual arrays changing the order of the values set against them
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+4. Another major problem has to do with the amount of html elements generated in the loop `(fillArr())` which beyond a certain threshold would cause problems and eventually crash the website.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+5. The files downloaded also can download more sets than required but would eventually break out because of problem 4.
 
-## Learn More
+# `Solution`
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+1. Separate the `mathfunc` which generates the coordinates based on the input recieved and inital coords recieved.
+2. The `mathfunc` should not be used for anything other than doing the math for the coordinates
+3. Refactor the `allcircles` function
+4. Refactor the `saveFile` function
+5. Refactor how `useEffect` works for expecting change
+6. Refactor how we pass iterative values for loops within loops
+7. The expected result in the JSON data structure should be 
+`[{"name": "xyz","location: "xyz","lat": "xyz","long": "xyz",}]`
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+    - wherein each object in the array represents a row and the `key` represents a column.
 
-### Code Splitting
+8. Each array should be generated from the base values read by the `fileReader` for keywords and descriptions as well as the lat long for the same.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+9. Each array is just one circle and ther would be 10 arrays as such that would make up the whole set.
 
-### Analyzing the Bundle Size
+10. The whole array will be saved into a variable and mapped over for the `saveFile` feature to initate the download process. This process would be intiated on button press only.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+11. These are the core functions for the new code and existing processes should be removed.
 
-### Making a Progressive Web App
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+# `Goal`
 
-### Advanced Configuration
+The user should be able to download a `N` number of set of `10` files each which would all include `2000` rows of values which all represent a coordinate for each pin.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+The user should be able to drop two files `keywords` and `descriptions`.
 
-### Deployment
+Each file needs to have a randomized order so that every `pin` is not the same particularly `name` and `descriptions`
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
 
-### `npm run build` fails to minify
+## `optional`
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+The set should be random and the number of sets generated should be determined with a list of clients. For eg: `80` clients should produce `80` sets and each set will have `10` files each. Each file will have `2000` rows populated by the `lat`, `long`, `name` and `description`
+
+
