@@ -70,3 +70,13 @@ Each file needs to have a randomized order so that every `pin` is not the same p
 The set should be random and the number of sets generated should be determined with a list of clients. For eg: `80` clients should produce `80` sets and each set will have `10` files each. Each file will have `2000` rows populated by the `lat`, `long`, `name` and `description`
 
 
+### `update status 2-16-23`
+
+updated the data structure with correctly shuffled data without affecting the order(above image for name description with shuffling. Each being different than the other).
+
+
+Currently working on -
+
+1. Refactoring the code to sequentially execute the functions properly and produce the expected csv properly.
+2. Setting up a downloadable link to download all the csv data sets collectively.
+3. Separating the application to render two views, 1 for syspree, 1 for client list (due to circle shape bug on syspree).
