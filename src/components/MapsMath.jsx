@@ -45,47 +45,6 @@ const MapsMath = (props) => {
   }
   // console.log(circleCount, "circle count");
   // function to get latitude and longitude pure which takes in the diameter value from user input state
-  const mathFunc = (diam, keywords, descriptions) => {
-    let diameter = diam; // diameter of circle in km
-    let dist = diameter / 6371.0;
-    let allCord = [];
-
-    for (let x = 0; x < cordCount; x++) {
-      let brng = props.degToRad(x);
-      let latitude = Math.asin(
-        Math.sin(centerLat) * Math.cos(dist) +
-          4 * Math.cos(centerLat) * Math.sin(dist) * Math.cos(brng)
-      );
-      let longitude =
-        centerLng +
-        Math.atan2(
-          Math.sin(brng) * Math.sin(dist) * Math.cos(centerLat),
-          Math.cos(dist) - Math.sin(centerLat) * Math.sin(latitude)
-        );
-      // radians_to_degrees(longitude) radians_to_degrees(latitude)
-      allCord.push({
-        name: keywords?.[x],
-        description: descriptions?.[x],
-        longitude: props.radToDeg(longitude),
-        latitude: props.radToDeg(latitude),
-      });
-    }
-    console.log(allCord, "all cordinates");
-    return allCord;
-  };
-
-  const allCircles = (keywords, descriptions) => {
-    console.log(keywords);
-    console.log(descriptions);
-    const alldata = [];
-    circleCount.forEach((ele, ind) => {
-      const circleCords = mathFunc(ele, keywords, descriptions);
-      alldata.push(circleCords);
-      // const data = [alldata[ind]];
-      // const fileName = "download";
-    });
-    return alldata;
-  };
 
   // // console.log(alldata);
   // // console.log(dataArr, "loop array");
@@ -93,11 +52,11 @@ const MapsMath = (props) => {
     setUserInput(event.target.value);
     // mainFunc();
   };
-  const handleChangeOuter = (event) => {
-    // setOuterInput
-    setOuterInput(event.target.value);
-    // userInputOuter
-  };
+  // const handleChangeOuter = (event) => {
+  //   // setOuterInput
+  //   setOuterInput(event.target.value);
+  //   // userInputOuter
+  // };
   // useEffect(() => {
   //   // console.log("this ran");
   //   setNewArr(allCircles());
@@ -112,14 +71,14 @@ const MapsMath = (props) => {
   // console.log(newArr);
 
   const circleIds = [];
-  const getAllIds = (e) => {
-    const allCircles = document.querySelectorAll(".table");
-    // console.log(allCircles);
-    for (let i = 0; i < allCircles.length; i++) {
-      circleIds.push(allCircles[i].id);
-    }
-    // console.log(circleIds);
-  };
+  // const getAllIds = (e) => {
+  //   const allCircles = document.querySelectorAll(".table");
+  //   // console.log(allCircles);
+  //   for (let i = 0; i < allCircles.length; i++) {
+  //     circleIds.push(allCircles[i].id);
+  //   }
+  //   // console.log(circleIds);
+  // };
   const saveZip = (filename, urls) => {
     if (!urls) return;
 
@@ -158,12 +117,12 @@ const MapsMath = (props) => {
           /* add a new records in the array */
           rows.push([column1, column2, column3, column4]);
         }
-        let csvContent = "data:text/csv;charset=utf-8,";
+        // let csvContent = "data:text/csv;charset=utf-8,";
 
         var csvFile = rows.map((e) => e.join(",")).join("\n");
-        var encodedUri = encodeURI(csvContent);
+        // var encodedUri = encodeURI(csvContent);
 
-        const fixedEncodedURI = encodedUri.replaceAll("#", "%23");
+        // const fixedEncodedURI = encodedUri.replaceAll("#", "%23");
         allURLS.push(csvFile);
       });
       // console.log(allURLS);
@@ -171,16 +130,17 @@ const MapsMath = (props) => {
     }
     exportData();
   };
+
   // if (circleIds) {
   //   circleIds.forEach((ele, ind) => {
   //     convertToExcel(ele);
   //   });
   //   // convertToExcel
   // }
-  const getId = (e) => {
-    const id = e.target.parentElement.lastChild.id;
-    convertToExcel(id);
-  };
+  // const getId = (e) => {
+  //   const id = e.target.parentElement.lastChild.id;
+  //   convertToExcel(id);
+  // };
   const showFile = async (e) => {
     e.preventDefault();
     const reader = new FileReader();
@@ -247,23 +207,104 @@ const MapsMath = (props) => {
   //   (newKeyWordArr = loopFunc(KeyWord));
 
   useEffect(() => {
+    const mathFunc = (diam, keywords) => {
+      let diameter = diam; // diameter of circle in km
+      let dist = diameter / 6371.0;
+      let allCord = [];
+
+      for (let x = 0; x < cordCount; x++) {
+        let brng = props.degToRad(x);
+        let latitude = Math.asin(
+          Math.sin(centerLat) * Math.cos(dist) +
+            4 * Math.cos(centerLat) * Math.sin(dist) * Math.cos(brng)
+        );
+        let longitude =
+          centerLng +
+          Math.atan2(
+            Math.sin(brng) * Math.sin(dist) * Math.cos(centerLat),
+            Math.cos(dist) - Math.sin(centerLat) * Math.sin(latitude)
+          );
+        // radians_to_degrees(longitude) radians_to_degrees(latitude)
+        // console.log(keywords)
+        allCord.push({
+          name: keywords?.name,
+          description: keywords?.description,
+          longitude: props.radToDeg(longitude),
+          latitude: props.radToDeg(latitude),
+        });
+      }
+      console.log(allCord, "all cordinates");
+      return allCord;
+    };
+
+    const allCircles = (keywords) => {
+      console.log(keywords);
+      // console.log(descriptions);
+      const alldata = [];
+      circleCount.forEach((ele, ind) => {
+        // const circleCords = mathFunc(ele, );
+        const circleCords = mathFunc(ele, keywords);
+        alldata.push(circleCords);
+        // const data = [alldata[ind]];
+        // const fileName = "download";
+      });
+      return alldata;
+    };
+
     if (SeoData && KeyWord) {
+      console.log(SeoData, KeyWord, "seo data");
       newSeoArr = loopFunc(SeoData);
       newKeyWordArr = loopFunc(KeyWord);
-      console.log(newSeoArr, "init");
-      setNewArr(allCircles(newSeoArr, newKeyWordArr));
-      try {
-        const parser = new Parser();
-        const csv = parser.parse(newArr?.[0]);
-        console.log(csv, "ARRAY TO CSV");
-      } catch (err) {
-        console.error(err);
+      const seoDataSet = [];
+      for (let i = 0; i < cordCount; i++) {
+        seoDataSet.push({
+          name: newSeoArr?.[i],
+          description: newKeyWordArr?.[i],
+        });
       }
+      const shuffleES6 = (array) => {
+        const newArray = [...array];
+
+        newArray.reverse().forEach((item, index) => {
+          const j = Math.floor(Math.random() * (index + 1));
+          [newArray[index], newArray[j]] = [newArray[j], newArray[index]];
+        });
+
+        return newArray;
+      };
+
+      const newARRAY = shuffleES6(seoDataSet);
+      console.log(seoDataSet, "new keyword array");
+      console.log(newARRAY, "SHUFFLED ARR");
+
+      // console.log(newSeoArr, "init");
+      const csvVariableData = allCircles(newARRAY);
+      console.log(csvVariableData);
     }
     // console.log(newArr ? JSON.parse(newArr) : "");
   }, [userInput]);
-  console.log(newArr[0], "NEW ARRR FOR JSON TO CSV");
 
+  // console.log(newArr[0], "NEW ARRR FOR JSON TO CSV");
+  const opts = {
+    fields: ["name", "description", "longitude", "latitude"],
+  };
+  const parser = new Parser(opts);
+  const csvArr = [];
+  const csv = parser.parse(newArr?.[0]);
+
+  const newSaveZip = (csvData) => {
+    saveZip("newCircle", csvData);
+  };
+
+  // if (csvArr) {
+  //   csvArr.push(csv);
+  //   newSaveZip(csvArr)
+  // }
+  console.log(csv, "ARRAY TO CSV");
+
+  // const saveAsZip => () {
+
+  // }
   // JSON.parse(newArr)
   // begin
   const finalTable = [];
@@ -275,23 +316,23 @@ const MapsMath = (props) => {
   }
 
   // console.log(newSeoArr, newKeyWordArr, "VALUES TO RENDER");
-  function downloadObjectAsJson(exportObj, exportName) {
-    var dataStr =
-      "data:text/json;charset=utf-8," +
-      encodeURIComponent(JSON.stringify(exportObj));
-    var downloadAnchorNode = document.createElement("a");
-    downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", exportName + ".json");
-    document.body.appendChild(downloadAnchorNode); // required for firefox
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
-  }
+  // function downloadObjectAsJson(exportObj, exportName) {
+  //   var dataStr =
+  //     "data:text/json;charset=utf-8," +
+  //     encodeURIComponent(JSON.stringify(exportObj));
+  //   var downloadAnchorNode = document.createElement("a");
+  //   downloadAnchorNode.setAttribute("href", dataStr);
+  //   downloadAnchorNode.setAttribute("download", exportName + ".json");
+  //   document.body.appendChild(downloadAnchorNode); // required for firefox
+  //   downloadAnchorNode.click();
+  //   downloadAnchorNode.remove();
+  // }
   console.log(newArr);
   const fillArr = () => {
     for (let i = 0; i < outerSetCounts?.length; i++) {
       // console.log(newArr[i][0], "INSIDE THE LOOP", i);
-      let shuffleSeoArr = shuffleArr(newSeoArr);
-      let shuffleKeyArr = shuffleArr(newKeyWordArr);
+      let shuffleSeoArr = newSeoArr;
+      let shuffleKeyArr = newKeyWordArr;
       finalTable.push({
         seoArr: [...shuffleSeoArr],
         keyArr: [...shuffleKeyArr],
