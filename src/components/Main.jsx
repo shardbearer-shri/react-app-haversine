@@ -23,6 +23,8 @@ const Main = (props) => {
   const [KeyWord, setKeyWord] = useState();
   const [isLat, setLat] = useState();
   const [isLong, setLong] = useState();
+  const [isBaseName, setBaseName] = useState();
+  const [isBaseDescription, setBaseDescription] = useState();
   // const [finalTable, setFinalTable] = useState([]);
 
   let cordCount = 2000;
@@ -33,11 +35,19 @@ const Main = (props) => {
   const getLong = (e) => {
     setLong(e.target.value);
   };
+  const initName = (e) => {
+    setBaseName(e.target.value);
+  };
+  const initDescription = (e) => {
+    setBaseDescription(e.target.value);
+  };
   // 72.9556716
   // 19.1985743
 
   for (let i = 0.1; i <= userInput; i += 0.1) {
+    console.log(parseFloat(i).toFixed(1), "CIRCL PARSING VALUE");
     circleCount.push(parseFloat(i).toFixed(1));
+    console.log(circleCount, "CIRCLE PARSING VALUE");
   }
 
   const handleChange = (event) => {
@@ -125,7 +135,8 @@ const Main = (props) => {
     const mathFunc = (diameter, keywordsArray) => {
       // console.log(keywords)
       // let diameter = diam; // diameter of circle in km
-      let dist = diameter / 6371.0;
+      let dist = (diameter * 25) / 6371.0;
+      console.log(dist, "THE DIAMETER OF THE CIRCLE");
       let allCord = [];
 
       for (let x = 0; x < cordCount; x++) {
@@ -178,6 +189,14 @@ const Main = (props) => {
     const newARRAY = shuffleES6(seoDataSet);
     // console.log(newARRAY);
     csvVariableData = allCircles(newARRAY);
+    csvVariableData.push([
+      {
+        name: isBaseName,
+        description: isBaseDescription,
+        longitude: isLong,
+        latitude: isLat,
+      },
+    ]);
     console.log(csvVariableData, "READY TO DOWNLOAD");
   }, [userInput]);
 
@@ -240,7 +259,22 @@ const Main = (props) => {
             onChange={(e) => getLong(e)}
           />
         </Box>
-
+        <Box sx={{ display: "flex", gap: "1rem", margin: "1rem 0rem" }}>
+          <TextField
+            id="outlined-basic"
+            label="Center point name/keyword"
+            variant="outlined"
+            onChange={(e) => initName(e)}
+            type="text"
+          />
+          <TextField
+            type="text"
+            id="outlined-basic"
+            label="Center point description"
+            variant="outlined"
+            onChange={(e) => initDescription(e)}
+          />
+        </Box>
         <FormControl>
           <InputLabel sx={{ width: 300 }}>
             Select Number of Circle Data
@@ -262,7 +296,7 @@ const Main = (props) => {
             <MenuItem value={0.7}>7</MenuItem>
             <MenuItem value={0.8}>8</MenuItem>
             <MenuItem value={0.9}>9</MenuItem>
-            <MenuItem value={1}>10</MenuItem>
+            {/* <MenuItem value={1}>10</MenuItem> */}
           </Select>
         </FormControl>
         <FormControl sx={{ marginLeft: "1rem" }}>

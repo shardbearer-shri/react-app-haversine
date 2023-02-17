@@ -41,6 +41,7 @@ const MapsMath = (props) => {
   let centerLng = props.degToRad(19.1985743);
 
   for (let i = 0.1; i <= userInput; i += 0.1) {
+    console.log(parseFloat(i).toFixed(1), 'CIRCL PARSING VALUE')
     circleCount.push(parseFloat(i).toFixed(1));
   }
   // console.log(circleCount, "circle count");
