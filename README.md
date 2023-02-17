@@ -14,6 +14,9 @@ Modules include
 -   A function to shuffle the arrays each time a new loop starts
 -   An input value that would initiate the process and also determine the number of files a single set would hold.
 
+Formula reosurce refferred 
+`https://www.movable-type.co.uk/scripts/latlong.html`
+
 ### `Fixed values`
 
 There are multiple fixed values in the creation of the data sets
@@ -80,3 +83,12 @@ Currently working on -
 1. Refactoring the code to sequentially execute the functions properly and produce the expected csv properly.
 2. Setting up a downloadable link to download all the csv data sets collectively.
 3. Separating the application to render two views, 1 for syspree, 1 for client list (due to circle shape bug on syspree).
+
+### `update status 2-17-23`
+
+Generating all the files and can generate more currently it slightly pause for 10 files but the pause is much more insignificant than before. The shuffling is happening for every file not without affecting the keyword and description mapping. Also fixed the csv generation process and will only happen on button click where you'll get all the files without causing browser load. Also fixed yesterday's number 2 to sequentially generate the downloadable links for csv. 
+
+Currently working on -
+1. Fixing the circle structure and incorrect render of latitude longitude using syspree lat long.
+2. Adding dynamic value for number of circle SETS generated.
+3. Separation of views.

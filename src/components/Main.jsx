@@ -35,8 +35,6 @@ const Main = (props) => {
   };
   // 72.9556716
   // 19.1985743
-  let centerLat = props.degToRad(72.9556716);
-  let centerLng = props.degToRad(19.1985743);
 
   for (let i = 0.1; i <= userInput; i += 0.1) {
     circleCount.push(parseFloat(i).toFixed(1));
@@ -118,10 +116,15 @@ const Main = (props) => {
   const allCircles = (keywords) => {
     console.log(keywords);
     // console.log(descriptions);
+    // 19.198418001986912, 72.9556770938645
+    // 25.18528117439559, 55.27562464605748
     const alldata = [];
-    const mathFunc = (diam, keywordsArray) => {
+    let centerLng = props.degToRad(isLong);
+
+    let centerLat = props.degToRad(isLat);
+    const mathFunc = (diameter, keywordsArray) => {
       // console.log(keywords)
-      let diameter = diam; // diameter of circle in km
+      // let diameter = diam; // diameter of circle in km
       let dist = diameter / 6371.0;
       let allCord = [];
 
@@ -130,7 +133,7 @@ const Main = (props) => {
         let brng = props.degToRad(x);
         let latitude = Math.asin(
           Math.sin(centerLat) * Math.cos(dist) +
-            4 * Math.cos(centerLat) * Math.sin(dist) * Math.cos(brng)
+            1 * Math.cos(centerLat) * Math.sin(dist) * Math.cos(brng)
         );
         let longitude =
           centerLng +
