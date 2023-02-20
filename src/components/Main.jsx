@@ -14,6 +14,7 @@ import { Box } from "@mui/system";
 import { Parser } from "@json2csv/plainjs";
 import Stack from "@mui/material/Stack";
 import CircularProgress from "@mui/material/CircularProgress";
+import LinearProgress from "@mui/material/LinearProgress";
 
 const Main = (props) => {
   const [newArr, setNewArr] = useState([]);
@@ -47,6 +48,7 @@ const Main = (props) => {
   const initDescription = (e) => {
     setBaseDescription(e.target.value);
   };
+
   // 72.9556716
   // 19.1985743
 
@@ -146,7 +148,7 @@ const Main = (props) => {
       );
     }
   };
-  const loaderVal = "";
+
   let newSeoArr = [];
   let newKeyWordArr = [];
 
@@ -168,7 +170,7 @@ const Main = (props) => {
 
       for (let x = 0; x < cordCount; x++) {
         // console.log(loaderValue(x, cordCount), 'DONE FOR CREATING DATA')
-        setLoader(isLoader + loaderValue(x, cordCount));
+        // setLoader(isLoader + loaderValue(x, cordCount) + 1);
         const keywords = shuffleES6(keywordsArray);
         let brng = props.degToRad(x);
         let latitude = Math.asin(
@@ -233,7 +235,7 @@ const Main = (props) => {
     console.log("I THINK THIS IS SECOND STAGE");
 
     // MULTIPLE
-    for (let i = 0; i < 2; i++) {
+    for (let i = 0; i < 80; i++) {
       const multiSetCsvVariableData = allCircles(newARRAY);
       multiSetCsvVariableData.push([
         {
@@ -290,20 +292,24 @@ const Main = (props) => {
       outerSetCounts.push(i);
     }
   }
-
   return (
     <>
       <div className="container">
         <div>
-          <h1>
-            <span style={{ color: "Green", fontSize: "3rem" }}>◯</span> My Maps
-            Circles Generator
-          </h1>
+          <h1>Google my Maps Circles Generator</h1>
         </div>
-        <div className="flex">
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "1rem",
+            margin: "1rem 0rem",
+          }}
+        >
           <KeywordsUpload showFile={showFile} />
           <DescriptionUpload showKeyword={showFile} />
-        </div>
+        </Box>
+
         <Box sx={{ display: "flex", gap: "1rem", margin: "1rem 0rem" }}>
           <div>
             <h2>Latitude Test</h2>
@@ -347,9 +353,7 @@ const Main = (props) => {
           />
         </Box>
         <FormControl>
-          <InputLabel sx={{ width: 300 }}>
-            Select Number of Circle Data
-          </InputLabel>
+          <InputLabel sx={{ width: 300 }}>How many circles</InputLabel>
           <Select
             labelId="demo-simple-select-label"
             id="demo-simple-select"
@@ -358,15 +362,15 @@ const Main = (props) => {
             onChange={handleChange}
             sx={{ width: 300 }}
           >
-            <MenuItem value={0.1}>1</MenuItem>
+            {/* <MenuItem value={0.1}>1</MenuItem>
             <MenuItem value={0.2}>2</MenuItem>
             <MenuItem value={0.31}>3</MenuItem>
             <MenuItem value={0.4}>4</MenuItem>
             <MenuItem value={0.5}>5</MenuItem>
             <MenuItem value={0.6}>6</MenuItem>
             <MenuItem value={0.7}>7</MenuItem>
-            <MenuItem value={0.8}>8</MenuItem>
-            <MenuItem value={0.9}>9</MenuItem>
+            <MenuItem value={0.8}>8</MenuItem> */}
+            <MenuItem value={0.9}>10</MenuItem>
             {/* <MenuItem value={1}>10</MenuItem> */}
           </Select>
         </FormControl>
@@ -374,22 +378,53 @@ const Main = (props) => {
           <InputLabel sx={{ width: 300 }}>Select Number of Sets</InputLabel>
         </FormControl>
 
-        <Box sx={{ display: "flex", gap: "1rem", margin: "1rem 0rem" }}>
-          <CircularProgress variant="determinate" value={isLoader} />
-        </Box>
-        <Box sx={{ display: "flex", gap: "1rem", margin: "1rem 0rem" }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "1rem",
+            margin: "1rem 0rem",
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: "1rem",
+              margin: "1rem 0rem",
+            }}
+          >
+            {/* <Button
+              variant="contained"
+              sx={{ width: "100%" }}
+              onClick={(e) => {
+                // downloadFile();
+              }}
+            >
+              Generate
+            </Button> */}
+            <Box sx={{ width: "100%" }}>
+              <LinearProgress
+                variant="determinate"
+                color="success"
+                value={isLoader}
+              />
+            </Box>
+          </Box>
+          {/* 
           <Button
-            variant="outlined"
-            sx={{ marginTop: "1rem" }}
+            variant={isLoader === 100 ? "outlined" : "disabled"}
             onClick={(e) => {
               downloadFile();
             }}
           >
             GET ONE SET OF CIRCLES
-          </Button>
+          </Button> */}
           <Button
+            // variant={isLoader === 100 ? "outlined" : "disabled"}
             variant="outlined"
-            sx={{ marginTop: "1rem" }}
             onClick={(e) => {
               downloadMultiple();
             }}
