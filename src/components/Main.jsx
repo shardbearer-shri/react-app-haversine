@@ -12,6 +12,8 @@ import JSZip from "jszip";
 import FileSaver from "file-saver";
 import { Box } from "@mui/system";
 import { Parser } from "@json2csv/plainjs";
+import Stack from "@mui/material/Stack";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const Main = (props) => {
   const [newArr, setNewArr] = useState([]);
@@ -25,6 +27,7 @@ const Main = (props) => {
   const [isLong, setLong] = useState();
   const [isBaseName, setBaseName] = useState();
   const [isBaseDescription, setBaseDescription] = useState();
+  const [isLoader, setLoader] = useState(0);
   // const [finalTable, setFinalTable] = useState([]);
 
   let cordCount = 2000;
@@ -38,6 +41,9 @@ const Main = (props) => {
   const initName = (e) => {
     setBaseName(e.target.value);
   };
+  const loaderValue = (x, y) => {
+    return Math.floor((x / y) * 100);
+  };
   const initDescription = (e) => {
     setBaseDescription(e.target.value);
   };
@@ -45,9 +51,9 @@ const Main = (props) => {
   // 19.1985743
 
   for (let i = 0.1; i <= userInput; i += 0.1) {
-    console.log(parseFloat(i).toFixed(1), "CIRCL PARSING VALUE");
+    // console.log(parseFloat(i).toFixed(1), "CIRCL PARSING VALUE");
     circleCount.push(parseFloat(i).toFixed(1));
-    console.log(circleCount, "CIRCLE PARSING VALUE");
+    // console.log(circleCount, "CIRCLE PARSING VALUE");
   }
 
   const handleChange = (event) => {
@@ -62,6 +68,27 @@ const Main = (props) => {
     urls.forEach((url, ind) => {
       folder.file(`Circle${ind}.csv`, url);
     });
+
+    // Generate the zip file asynchronously
+    zip.generateAsync({ type: "blob" }).then(function (content) {
+      // Force down of the Zip file
+      FileSaver.saveAs(content, "archive.zip");
+    });
+  };
+  const saveZipMultiple = (filename, urlsArray) => {
+    if (!urlsArray) return;
+    // urls is a single array
+    // urls will be an array of arrays
+    // below function is of a single array of urls
+    const zip = new JSZip();
+    for (let i = 0; i < urlsArray?.length; i++) {
+      const folder = zip.folder(`Set ${i + 1}`);
+      urlsArray.forEach((urls, index) => {
+        urls.forEach((url, ind) => {
+          folder.file(`Circle${ind}.csv`, url);
+        });
+      });
+    }
 
     // Generate the zip file asynchronously
     zip.generateAsync({ type: "blob" }).then(function (content) {
@@ -119,12 +146,12 @@ const Main = (props) => {
       );
     }
   };
-
+  const loaderVal = "";
   let newSeoArr = [];
   let newKeyWordArr = [];
 
   const allCircles = (keywords) => {
-    console.log(keywords);
+    // console.log(keywords);
     // console.log(descriptions);
     // 19.198418001986912, 72.9556770938645
     // 25.18528117439559, 55.27562464605748
@@ -136,10 +163,12 @@ const Main = (props) => {
       // console.log(keywords)
       // let diameter = diam; // diameter of circle in km
       let dist = (diameter * 25) / 6371.0;
-      console.log(dist, "THE DIAMETER OF THE CIRCLE");
+      // console.log(dist, "THE DIAMETER OF THE CIRCLE");
       let allCord = [];
 
       for (let x = 0; x < cordCount; x++) {
+        // console.log(loaderValue(x, cordCount), 'DONE FOR CREATING DATA')
+        setLoader(isLoader + loaderValue(x, cordCount));
         const keywords = shuffleES6(keywordsArray);
         let brng = props.degToRad(x);
         let latitude = Math.asin(
@@ -175,6 +204,8 @@ const Main = (props) => {
     return alldata;
   };
   let csvVariableData = "";
+  const largeSetArray = [];
+
   useEffect(() => {
     newSeoArr = loopFunc(SeoData?.[0]?.value);
     newKeyWordArr = loopFunc(SeoData?.[1]?.value);
@@ -187,6 +218,7 @@ const Main = (props) => {
     }
 
     const newARRAY = shuffleES6(seoDataSet);
+    console.log("BASIC SHUFFLE DONE");
     // console.log(newARRAY);
     csvVariableData = allCircles(newARRAY);
     csvVariableData.push([
@@ -197,7 +229,24 @@ const Main = (props) => {
         latitude: isLat,
       },
     ]);
-    console.log(csvVariableData, "READY TO DOWNLOAD");
+    // console.log(csvVariableData, "READY TO DOWNLOAD 1 SET");
+    console.log("I THINK THIS IS SECOND STAGE");
+
+    // MULTIPLE
+    for (let i = 0; i < 2; i++) {
+      const multiSetCsvVariableData = allCircles(newARRAY);
+      multiSetCsvVariableData.push([
+        {
+          name: isBaseName,
+          description: isBaseDescription,
+          longitude: isLong,
+          latitude: isLat,
+        },
+      ]);
+      largeSetArray.push(multiSetCsvVariableData);
+    }
+    // console.log(largeSetArray, "READY TO DOWNLOAD LARGE SET");
+    console.log("DONE WITH THE LOOPS, CAN DOWNLOAD NOW");
   }, [userInput]);
 
   const downloadFile = () => {
@@ -206,6 +255,7 @@ const Main = (props) => {
     };
     const parser = new Parser(opts);
     const csvArr = [];
+    console.log(csvVariableData, "SINGLE SET ARRAY THAT IS GOING TO BE PARSED");
     for (let i = 0; i < csvVariableData.length; i++) {
       csvArr.push(parser.parse(csvVariableData[i]));
     }
@@ -213,6 +263,27 @@ const Main = (props) => {
     // console.log(csvVariableData, "DOWNLOAD DATA");
     saveZip("array", csvArr);
   };
+  const downloadMultiple = async () => {
+    const opts = {
+      fields: ["name", "description", "longitude", "latitude"],
+    };
+    const parser = new Parser(opts);
+    const largeCSVset = [];
+    console.log(largeSetArray[0], "LARGE SET ARRAY THAT IS GOING TO BE PARSED");
+    for (let i = 0; i < largeSetArray.length; i++) {
+      // console.log(largeSetArray[i]);
+      const csvArr = [];
+      for (let j = 0; j < largeSetArray[i].length; j++) {
+        csvArr.push(parser.parse(largeSetArray[i][j]));
+      }
+      largeCSVset.push(csvArr);
+    }
+    console.log(largeCSVset, "array to be sent to the save as");
+    // console.log(csvVariableData, "DOWNLOAD DATA");
+    saveZipMultiple("array", largeCSVset);
+    //
+  };
+
   const outerSetCounts = [];
   if (userInputOuter) {
     for (let i = 0; i < userInputOuter; i++) {
@@ -302,15 +373,30 @@ const Main = (props) => {
         <FormControl sx={{ marginLeft: "1rem" }}>
           <InputLabel sx={{ width: 300 }}>Select Number of Sets</InputLabel>
         </FormControl>
-        <Button
-          variant="outlined"
-          sx={{ marginTop: "1rem" }}
-          onClick={(e) => {
-            downloadFile();
-          }}
-        >
-          GET ALL CIRCLES
-        </Button>
+
+        <Box sx={{ display: "flex", gap: "1rem", margin: "1rem 0rem" }}>
+          <CircularProgress variant="determinate" value={isLoader} />
+        </Box>
+        <Box sx={{ display: "flex", gap: "1rem", margin: "1rem 0rem" }}>
+          <Button
+            variant="outlined"
+            sx={{ marginTop: "1rem" }}
+            onClick={(e) => {
+              downloadFile();
+            }}
+          >
+            GET ONE SET OF CIRCLES
+          </Button>
+          <Button
+            variant="outlined"
+            sx={{ marginTop: "1rem" }}
+            onClick={(e) => {
+              downloadMultiple();
+            }}
+          >
+            GET MULTIPLE SETS
+          </Button>
+        </Box>
       </div>
     </>
   );

@@ -92,3 +92,26 @@ Currently working on -
 1. Fixing the circle structure and incorrect render of latitude longitude using syspree lat long.
 2. Adding dynamic value for number of circle SETS generated.
 3. Separation of views.
+
+### `update status 2-20-23`
+
+- the functionalities as mentioned yesterday.
+- Updated the circle shape to render correctly (tested with quadri and syspree)
+- Manual work required when inputting latitude longitude as different locations have different order in which lat long is generated on google maps as incorrect placement of lat long will result in wrong map tiles.
+- Views havent been separated since circles are rendered correctly (if required can be done)
+- Added custom pin for central point
+- Updated UI to provide additional options for adding data for custom central point.
+
+Currently working on -
+Automating the process of generating the same client set 80 times
+
+
+### `problem`
+
+Currently a single array with 10 arrays gets push into the file saver function, the filesaver gets an array of selected input value with strings. These strings then get looped over inside the filesaver function to generate individual csvfiles within a folder which after the loop ends produce a downloadable zip file for the user.
+
+Multiple sets would be 
+
+an array of arrays.
+an array of arrays which contain strings just like the one above.
+the filesaver would require the variables to be 
